@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Movie Search</title>
+  <style>
+  </style>
+</head>
+<body>
+    
+  <div id="container">
+    <label for="search">Search : Movies</label>
+    <input type="text" id="query" placeholder="Search For a Movie">
+    <div id="content-body"></div>
+  </div>
+  
+  <script>
+    var fetchData = async (query) =>{
+      try {
+        var res = await fetch(`https://www.omdbapi.com/?s=${query}&apikey=5f312661`);
+        var data = await res.json();
+        if(data.Response == "True"){
+          showData(data.Search);
+        } else {
+          console.log("No results found");
+        }
+      } catch (error) {
+        console.log("Something went wrong");
+      }
+    }
+
+    var searchButton = document.querySelector("#query");
+    var id;
+    
+    var debounce = (func, delay) => {
+      var timeoutId;
+      return function() {
+        var context = this;
+        var args = arguments;
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => func.apply(context, args), delay);
+      };
+    };
+
+    var throttle = (func, limit) => {
+      var throttled = false;
+      return function() {
+        if (!throttled) {
+          func.apply(this, arguments);
+          throttled = true;
+          setTimeout(() => {
+            throttled = false;
+          }, limit);
+        }
+      };
+    };
+
+    var fetchDataDebounced = debounce(fetchData, 1000);
+    var fetchDataThrottled = throttle(fetchData, 1000);
+
+    var handleDebouncedSearch = () => {
+      var query = searchButton.value;
+      fetchDataDebounced(query);
+    };
+
+    var handleThrottledSearch = () => {
+      var query = searchButton.value;
+      fetchDataThrottled(query);
+    };
+
+    searchButton.addEventListener("input", handleDebouncedSearch);
+
+    var showData = (data) =>{
+      var contentBody = document.querySelector("#content-body");
+      contentBody.innerHTML = "";
+      data.forEach((ele)=>{
+        var poster = document.createElement("img");
+        var card = document.createElement("div");
+        var title = document.createElement("h3");
+        var type = document.createElement("p");
+
+        poster.src = ele.Poster;
+        title.textContent = ele.Title;
+        type.textContent = ele.Type;
+        card.append(poster, title, type);
+        contentBody.append(card);
+      });
+    }
+
+    fetchData();
+  </script>
+  
+</body>
+</html>
+
+
+
+
+
+
+<!-- <!DOCTYPE html>
+<html>
+<head>
+  <title>Movie Search</title>
+  <style>
+  </style>
+</head>
+<body>
+    
+  <div id="container">
+    <label for="search">Search : Movies</label>
+    <input type="text" id="query" placeholder="Search For a Movie">
+    <div id="content-body"></div>
+  </div>
+  
+  <script>
+    var fetchData = async (query) =>{
+      try {
+        var res = await fetch(`https://www.omdbapi.com/?s=${query}&apikey=5f312661`);
+        var data = await res.json();
+        if(data.Response == "True"){
+          showData(data.Search);
+        } else {
+          console.log("No results found");
+        }
+      } catch (error) {
+        console.log("Something went wrong");
+      }
+    }
+
+    var searchButton = document.querySelector("#query");
+    var id;
+    
+    var handleBounce = () =>{
+      var query = searchButton.value;
+      if(id) {
+        clearTimeout(id);
+      }
+      id = setTimeout(() =>{
+        fetchData(query);
+      }, 1000);
+    }
+
+    var showData = (data) =>{
+      var contentBody = document.querySelector("#content-body");
+      contentBody.innerHTML = ""; 
+      data.forEach((ele)=>{
+        var poster = document.createElement("img");
+        var card = document.createElement("div");
+        var title = document.createElement("h3");
+        var type = document.createElement("p");
+
+        poster.src = ele.Poster;
+        title.textContent = ele.Title;
+        type.textContent = ele.Type;
+        card.append(poster, title, type);
+        contentBody.append(card);
+      });
+    }
+
+    searchButton.addEventListener("input", handleBounce);
+
+    fetchData(); 
+  </script>
+  
+</body>
+</html>
+ -->
+
